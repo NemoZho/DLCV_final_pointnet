@@ -1,6 +1,6 @@
 from __future__ import print_function
 import sys
-sys.path.append('/home/ningwen/DLCV/final/pointnet_DLCV')
+sys.path.append('./pointnet_DLCV')
 
 
 import argparse
