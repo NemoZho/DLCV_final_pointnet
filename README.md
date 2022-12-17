@@ -1,68 +1,18 @@
-# PointNet.pytorch
-This repo is implementation for PointNet(https://arxiv.org/abs/1612.00593) in pytorch. The model is in `pointnet/model.py`.
+# DLCV Final
 
-It is tested with pytorch-1.0.
+## Dataset
+將dataset資料夾與本專案資料夾放在同一個路徑下
 
-# Download data and running
+## How to Run
 
 ```
-git clone https://github.com/fxia22/pointnet.pytorch
-cd pointnet.pytorch
-pip install -e .
+$ python3 DLCV_final_pointnet/utils/train_segmentation.py
 ```
 
-Download and build visualization tool
-```
-cd script
-bash build.sh #build C++ code for visualization
-bash download.sh #download dataset
-```
+## Description
 
-Training 
-```
-cd utils
-python train_classification.py --dataset <dataset path> --nepoch=<number epochs> --dataset_type <modelnet40 | shapenet>
-python train_segmentation.py --dataset <dataset path> --nepoch=<number epochs> 
-```
-
-Use `--feature_transform` to use feature transform.
-
-# Performance
-
-## Classification performance
-
-On ModelNet40:
-
-|  | Overall Acc | 
-| :---: | :---: | 
-| Original implementation | 89.2 | 
-| this implementation(w/o feature transform) | 86.4 | 
-| this implementation(w/ feature transform) | 87.0 | 
-
-On [A subset of shapenet](http://web.stanford.edu/~ericyi/project_page/part_annotation/index.html)
-
-|  | Overall Acc | 
-| :---: | :---: | 
-| Original implementation | N/A | 
-| this implementation(w/o feature transform) | 98.1 | 
-| this implementation(w/ feature transform) | 97.7 | 
-
-## Segmentation performance
-
-Segmentation on  [A subset of shapenet](http://web.stanford.edu/~ericyi/project_page/part_annotation/index.html).
-
-| Class(mIOU) | Airplane | Bag| Cap|Car|Chair|Earphone|Guitar|Knife|Lamp|Laptop|Motorbike|Mug|Pistol|Rocket|Skateboard|Table
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | 
-| Original implementation |  83.4 | 78.7 | 82.5| 74.9 |89.6| 73.0| 91.5| 85.9| 80.8| 95.3| 65.2| 93.0| 81.2| 57.9| 72.8| 80.6| 
-| this implementation(w/o feature transform) | 73.5 | 71.3 | 64.3 | 61.1 | 87.2 | 69.5 | 86.1|81.6| 77.4|92.7|41.3|86.5|78.2|41.2|61.0|81.1|
-| this implementation(w/ feature transform) |  |  |  |  | 87.6 |  | | | | | | | | | |81.0|
-
-Note that this implementation trains each class separately, so classes with fewer data will have slightly lower performance than reference implementation.
-
-Sample segmentation result:
-![seg](https://raw.githubusercontent.com/fxia22/pointnet.pytorch/master/misc/show3d.png?token=AE638Oy51TL2HDCaeCF273X_-Bsy6-E2ks5Y_BUzwA%3D%3D)
-
-# Links
-
-- [Project Page](http://stanford.edu/~rqi/pointnet/)
-- [Tensorflow implementation](https://github.com/charlesq34/pointnet)
+- dataset.py會export一個ScanNet200Dataset，每次output出point_set, cls兩個tensor，point_set形狀為<點數量x6>，其中6為xyzrgb的組合（rgb有經過標準化），cls形狀為<點數量>，為每個點的標籤。
+- 標籤使用201個class，分別為0~200，其中1到200會被map進官方的標籤裡，0代表不確定或並沒有在200個標籤裡。
+- batch_size只能為1，因為每個scene的點數量差距過大，padding會導致gpu記憶體爆炸。
+- 將train_set切分為train和valid，ratio可以在train_segmentation.py裏面定義。
+- 最後階段計算miou分數疑似會有bug，待修正。
