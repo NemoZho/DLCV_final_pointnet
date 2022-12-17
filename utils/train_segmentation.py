@@ -153,4 +153,4 @@ for i,data in tqdm(enumerate(testdataloader, 0)):
             part_ious.append(iou)
         shape_ious.append(np.mean(part_ious))
 
-print("mIOU for class {}: {}".format(opt.class_choice, np.mean(shape_ious)))
+print("mIOU : {}".format(np.mean(shape_ious)))
