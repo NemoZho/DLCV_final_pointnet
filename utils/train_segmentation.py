@@ -56,17 +56,17 @@ dataloader = torch.utils.data.DataLoader(
     shuffle=True,
     num_workers=int(opt.workers))
 
-test_dataset = ScanNet200Dataset(
+valid_dataset = ScanNet200Dataset(
     root = datapath, 
     filelist_txt = filelist_txt,
     split='valid')
-testdataloader = torch.utils.data.DataLoader(
-    test_dataset,
+validdataloader = torch.utils.data.DataLoader(
+    valid_dataset,
     batch_size=opt.batchSize,
     shuffle=True,
     num_workers=int(opt.workers))
 
-print(len(dataset), len(test_dataset))
+print(len(dataset), len(valid_dataset))
 num_classes = 201
 print('classes', num_classes)
 try:
@@ -112,7 +112,7 @@ for epoch in range(opt.nepoch):
         print('[%d: %d/%d] train loss: %f accuracy: %f' % (epoch, i, num_batch, loss.item(), correct.item()/float(opt.batchSize * int(pred.shape[0]))))
 
         if i % 10 == 0:
-            j, data = next(enumerate(testdataloader, 0))
+            j, data = next(enumerate(validdataloader, 0))
             points, target = data
             points = points.transpose(2, 1)
             points, target = points.to(device), target.to(device)
@@ -123,13 +123,13 @@ for epoch in range(opt.nepoch):
             loss = criterion(pred, target)
             pred_choice = pred.data.max(1)[1]
             correct = pred_choice.eq(target.data).cpu().sum()
-            print('[%d: %d/%d] %s loss: %f accuracy: %f' % (epoch, i, num_batch, blue('test'), loss.item(), correct.item()/float(opt.batchSize * int(pred.shape[0]))))
+            print('[%d: %d/%d] %s loss: %f accuracy: %f' % (epoch, i, num_batch, blue('valid'), loss.item(), correct.item()/float(opt.batchSize * int(pred.shape[0]))))
 
-    torch.save(classifier.state_dict(), '%s/seg_model_%s_%d.pth' % (opt.outf, opt.class_choice, epoch))
+    torch.save(classifier.state_dict(), '%s/seg_model_%d.pth' % (opt.outf, epoch))
 
 ## benchmark mIOU
 shape_ious = []
-for i,data in tqdm(enumerate(testdataloader, 0)):
+for i,data in tqdm(enumerate(validdataloader, 0)):
     points, target = data
     points = points.transpose(2, 1)
     points, target = points.to(device), target.to(device)
